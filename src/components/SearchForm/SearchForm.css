@@ -1,0 +1,28 @@
+.SearchForm form{
+    border-radius: 15px;
+    padding: 1rem;
+    border: 1px solid #861F41;
+}
+.SearchForm{
+    margin: 3vh auto;
+}
+.SearchForm .formlbl {
+    width: fit-content;
+    font-size: 20pt;
+    color: #861F41;
+    font-weight: 600;
+}
+
+/* .SearchForm form {
+    margin: unset unset 1.5% unset; */
+/* } */
+
+li.option:hover {
+    background-color: #4b1e2d !important;
+}
+
+.matches div {
+    margin: 0;
+    margin-bottom: 1.5%;
+}
+
