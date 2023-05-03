@@ -26,3 +26,10 @@ li.option:hover {
     margin-bottom: 1.5%;
 }
 
+.red-box {
+    border: 1px solid crimson;
+    border-radius: 10px;
+    background-color: rgba(226, 47, 122, .1);
+    width: 100%;
+    padding: 2%;
+}

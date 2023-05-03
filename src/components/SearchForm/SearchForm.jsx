@@ -31,23 +31,30 @@ export const SearchForm = () => {
     useState(()=>{
         if(buddyData.fetched) return;
         // copied from stackoverflow -> https://stackoverflow.com/a/27979069
-        const csvJSON = (csv) => {
-            var lines=csv.split("\n");
-            var result = [];
-            var headers=lines[0].split(",");
-            for(var i=1;i<lines.length;i++){
-                var obj = {};
-                var currentline=lines[i].split(",");
-                for(var j=0;j<headers.length;j++){
-                    obj[headers[j]] = currentline[j];
-                }
-                result.push(obj);
+
+            const getJSONfromTSV = (tsv) => {
+                let tmpTsv = tsv.split('\n');
+                delete tmpTsv[0];
+                let _tsvToProcess = tmpTsv.join('\n').slice(1);
+                const tsv2arr = (tsv) => {
+                    const [headers, ...rows] = tsv.trim().split('\n').map (r => r.split ('\t'))
+                    return rows.reduce ((a, r) => [
+                      ...a, 
+                      Object.assign (...(r.map (
+                        (x, i, _, c = x.trim()) => {
+                            if (headers[i].trim() === "VT Email ID") return  {[headers[i].trim()]: c?.trim() ? c : _[14] }
+                            else if (headers[i].trim() === "Program") return  {[headers[i].trim()]: c?.trim() ? c : _[13] }
+                            else return {[headers[i].trim() + i]: isNaN(c) ? c : Number(c) }
+                    }
+                      )))
+                    ], [])
+                  }
+                return tsv2arr(_tsvToProcess)
             }
-            return JSON.stringify(result); //JSON
-          }
-        fetch('https://docs.google.com/spreadsheets/d/13wTnFW3UOzIliJEMKB792XO-J4kdRHOXgCojJA8ExFg/gviz/tq?tqx=out:csv').then((d) => d.text()).then((csvData) => {
+
+        fetch(`https://docs.google.com/spreadsheets/d/13wTnFW3UOzIliJEMKB792XO-J4kdRHOXgCojJA8ExFg/export?format=tsv`).then((d) => d.text()).then((tsvData) => {
             if(buddyData.fetched) return;
-            setBuddyData(prevState => ({...prevState, fetched: true, data: JSON.parse(csvJSON(csvData).replaceAll("\\\"", ""))}))
+            setBuddyData(prevState => ({...prevState, fetched: true, data: getJSONfromTSV(tsvData)}))
         })
     },[])
 
@@ -64,47 +71,47 @@ export const SearchForm = () => {
            let potentialMatches = buddyData.data.filter((v,i) => {
                 if (searchDetails.lookingForBWGender !== "A") {
                     // gender filter
-                    if (!((v["PERSONAL INFORMATION Gender"] === "Female" && searchDetails.lookingForBWGender === "F") ||
-                        (v["PERSONAL INFORMATION Gender"] === "Male" && searchDetails.lookingForBWGender === "M") ||
-                        (v["PERSONAL INFORMATION Gender"] === "Other" && searchDetails.lookingForBWGender === "O"))) {
+                    if (!((v["Gender3"] === "Female" && searchDetails.lookingForBWGender === "F") ||
+                        (v["Gender3"] === "Male" && searchDetails.lookingForBWGender === "M") ||
+                        (v["Gender3"] === "Other" && searchDetails.lookingForBWGender === "O"))) {
                             return false
                         }
                 }
                 if (searchDetails.lookingForBWDiet !== "A") {
                     // diet filter
-                    if (!((v["Dietary Preference"] === "Vegetarian" && searchDetails.lookingForBWDiet === "V") ||
-                        (v["Dietary Preference"] === "Non-Vegetarian" && searchDetails.lookingForBWDiet === "N") ||
-                        (v["Dietary Preference"] === "Eggitarian" && searchDetails.lookingForBWDiet === "E"))) {
+                    if (!((v["Dietary Preference8"] === "Vegetarian" && searchDetails.lookingForBWDiet === "V") ||
+                        (v["Dietary Preference8"] === "Non-Vegetarian" && searchDetails.lookingForBWDiet === "N") ||
+                        (v["Dietary Preference8"] === "Eggitarian" && searchDetails.lookingForBWDiet === "E"))) {
                             return false
                         }
                  }
                  if (searchDetails.lookingForBWSmokingHabit !== "A") {
                     // smoker filter
-                    if (!((v["Smoker"] === "No" && searchDetails.lookingForBWSmokingHabit === "N") ||
-                        (v["Smoker"] === "Yes" && searchDetails.lookingForBWSmokingHabit === "Y"))) {
+                    if (!((v["Smoker9"] === "No" && searchDetails.lookingForBWSmokingHabit === "N") ||
+                        (v["Smoker9"] === "Yes" && searchDetails.lookingForBWSmokingHabit === "Y"))) {
                             return false
                         }
                  }
 
                  if (searchDetails.lookingForBWDrinkingHabit !== "A") {
                     // drinker filter
-                    if (!((v["Drinker"] === "No" && searchDetails.lookingForBWDrinkingHabit === "N") ||
-                        (v["Drinker"] === "Yes" && searchDetails.lookingForBWDrinkingHabit === "Y"))) {
+                    if (!((v["Drinker10"] === "No" && searchDetails.lookingForBWDrinkingHabit === "N") ||
+                        (v["Drinker10"] === "Yes" && searchDetails.lookingForBWDrinkingHabit === "Y"))) {
                             return false
                         }
                  }
 
                  if(searchDetails.lookingForBWEthnicity.length !== 0 && !searchDetails.lookingForBWEthnicity.includes("Any")) {
                     // ethnicity filter
-                    if(searchDetails.lookingForBWEthnicity.includes(v["Ethnicity"]) === false) {
+                    if(searchDetails.lookingForBWEthnicity.includes(v["Ethnicity6"]) === false) {
                         return false
                     }
                  }
 
                  if (searchDetails.lookingForBWRoomPreference !== "A") {
                     // bedroom preference filter
-                    if (!((v["Bedroom Preference"] === "Single" && searchDetails.lookingForBWRoomPreference === "SI") ||
-                        (v["Bedroom Preference"] === "Shared" && searchDetails.lookingForBWRoomPreference === "SH"))) {
+                    if (!((v["Bedroom Preference24"] === "Single" && searchDetails.lookingForBWRoomPreference === "SI") ||
+                        (v["Bedroom Preference24"] === "Shared" && searchDetails.lookingForBWRoomPreference === "SH"))) {
                             return false
                         }
                  }
@@ -221,25 +228,30 @@ export const SearchForm = () => {
 			</Form>
 
             {showMatches.show ? <div className="matches row">
-              <h3>  <center>Results:</center></h3>
+              <h3>  <center>Results ({showMatches.data.length} Found):</center></h3>
                     {showMatches.data.length === 0 ? 'No Buddies Found' : showMatches.data.map((v,i)=> {
-                        return   <div class="col-sm-6" key={i}>
+                        return   <div className="col-sm-6" key={i}>
                         <div className="card">
                           <div className="card-body">
-                            <h5 className="card-title d-flex justify-content-between"> <span>{v.Name}</span><Badge bg={v["PERSONAL INFORMATION Gender"] === "Female" ? "success" : (v["PERSONAL INFORMATION Gender"] === "Male" ? "primary" : "info")}>{v["Age"] + ' ' + v["PERSONAL INFORMATION Gender"]}</Badge></h5>
+                            <h5 className="card-title d-flex justify-content-between"> <span>{v['Name2']}</span><Badge bg={v["Gender3"] === "Female" ? "success" : (v["Gender3"] === "Male" ? "primary" : "info")}>{v["Age5"] + ' ' + v["Gender3"]}</Badge></h5>
                             <div className="card-text d-flex justify-content-between flex-column align-items-start">
-                                <span>Current Student: <b className="ans">{v['Are you a current Student?']}</b></span>
-                                <span>Preferred Ethnicity for roommate <b className="ans">{v['ROOMMATE PREFERENCE Ethnicity']}</b></span>
-                                <span>Expected Move-In Date: <b className="ans">{v['Expected Move-In Date']}</b></span>
+                                <span>Current Student: <b className="ans">{v['Are you a current Student?11']}</b></span>
+                                <span>Ethnicity: <b className="ans">{v['Ethnicity6']}</b></span>
+                                <span>Program: <b className="ans">{v['Program'] ? v['Program'] : 'Not Submitted'}</b></span>
+                                <span>Expected Move-In Date: <b className="ans">{v['Expected Move-In Date25']}</b></span>
                                 <span>VT Email ID: <b className="ans"><a href={v['VT Email ID'] ? "mailto:"+v['VT Email ID'] : ''}>{v['VT Email ID'] ? v['VT Email ID'] : 'Not Submitted'}</a></b></span>
-                                <span>Personal Email ID: <b className="ans"><a href={v['CONTACT DETAILS Personal Email ID'] ? "mailto:"+v['CONTACT DETAILS Personal Email ID'] : ''}>{v['CONTACT DETAILS Personal Email ID'] ? v['CONTACT DETAILS Personal Email ID'] : 'Not Submitted'}</a></b></span>
-                                <span>WhatsApp Number: <b className="ans"><a href={v['WhatsApp Number'] ? "tel:"+v['WhatsApp Number'] : ''}>{v['WhatsApp Number'] ? v['WhatsApp Number'] : 'Not Submitted'}</a></b></span>
-                                <span>Calling Number: <b className="ans"><a href={v['Calling Number'] ? "tel:"+v['Calling Number'] : ''}>{v['Calling Number'] ? v['Calling Number'] : 'Not Submitted'}</a></b></span>
-                                <span>Expected Rent: <b className="ans">{v['LOOKING FOR AN APARTMENT Expected Rent'] ? v['LOOKING FOR AN APARTMENT Expected Rent'] : 'Not Submitted'}</b></span>
-                                <span>Bedroom Preferences: <b className="ans">{v['Bedroom Preference'] ? v['Bedroom Preference'] : 'Not Submitted'}</b></span>
-                                <span>Smoker: <b className="ans">{v['Smoker'] ? v['Smoker'] : 'Not Submitted'}</b></span>
-                                <span>Drinker: <b className="ans">{v['Drinker'] ? v['Drinker'] : 'Not Submitted'}</b></span>
-                                <span>Already Booked an Apartment?: <b className="ans">{v['Have you booked an Apartment?'] ? v['Have you booked an Apartment?'] : 'Not Submitted'}</b></span>
+                                <span>Personal Email ID: <b className="ans"><a href={v['Personal Email ID34'] ? "mailto:"+v['Personal Email ID34'] : ''}>{v['Personal Email ID34'] ? v['Personal Email ID34'] : 'Not Submitted'}</a></b></span>
+                                <span>WhatsApp Number: <b className="ans"><a href={v['WhatsApp Number35'] ? "tel:"+v['WhatsApp Number35'] : ''}>{v['WhatsApp Number35'] ? v['WhatsApp Number35'] : 'Not Submitted'}</a></b></span>
+                                <span>Calling Number: <b className="ans"><a href={v['Calling Number36'] ? "tel:"+v['Calling Number36'] : ''}>{v['Calling Number36'] ? v['Calling Number36'] : 'Not Submitted'}</a></b></span>
+                                <span>Expected Rent: <b className="ans">{v['Expected Rent23'] ? v['Expected Rent23'] : 'Not Submitted'}</b></span>
+                                <span>Already Booked an Apartment?: <b className="ans">{v['Have you booked an Apartment?22'] ? v['Have you booked an Apartment?22'] : 'Not Submitted'}</b></span>
+                                <div className="red-box d-flex justify-content-between flex-column align-items-start">
+                                    <center className="text-center text-danger">Looking for a buddy with:</center>
+                                    <span>Ethnicity: <b className="ans">{v['Ethnicity18']}</b></span>
+                                    <span>Dietary Preferance: <b className="ans">{v['Dietary Preference19']}</b></span>
+                                    <span>Smoker: <b className="ans">{v['Smoker20'] ? v['Smoker20'] : 'Not Submitted'}</b></span>
+                                    <span>Drinker: <b className="ans">{v['Drinker21'] ? v['Drinker21'] : 'Not Submitted'}</b></span>
+                                </div>
                             </div>
                           </div>
                         </div>
